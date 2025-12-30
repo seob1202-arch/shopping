@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="referrer" content="no-referrer">
+    
+    <title>Global Picks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <style>
+        body { 
+            font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #F8FAFC; color: #1E293B; -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
+        .fab { box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4); transition: all 0.2s; }
+        .fab:active { transform: scale(0.92); }
+        
+        /* 모달 공통 */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 92vh; border-radius: 20px 20px 0 0; }
+        .modal-overlay.active .bottom-sheet { transform: translateY(0); }
+        .popup-card { transform: scale(0.95); opacity: 0; transition: all 0.2s; }
+        .modal-overlay.active .popup-card { transform: scale(1); opacity: 1; }
+
+        @media (min-width: 640px) {
+            .bottom-sheet { transform: scale(0.95); opacity: 0; border-radius: 16px; max-height: 85vh; width: 100%; max-width: 500px; margin: auto; }
+            .modal-overlay.active .bottom-sheet { transform: scale(1); opacity: 1; }
+        }
+        
+        .slider-scroll { scroll-snap-type: x mandatory; }
+        .slider-item { scroll-snap-align: center; }
+        
+        .tag-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: -0.02em; }
+        .tag-hot { background: #FFF1F2; color: #E11D48; } 
+        .tag-cost { background: #EFF6FF; color: #2563EB; }
+        .tag-gift { background: #FFFBEB; color: #D97706; } 
+        .tag-rare { background: #F3E8FF; color: #9333EA; } 
+        .tag-sale { background: #ECFDF5; color: #059669; }
+        
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(200%) rotate(45deg); } }
+        .shine-effect::after { content: ''; position: absolute; top: 0; left: 0; width: 50px; height: 100%; background: rgba(255,255,255,0.2); transform: translateX(-100%) rotate(45deg); animation: shine 3s infinite ease-in-out; filter: blur(10px); }
+    </style>
+</head>
+<body>
+
+    <header class="glass-header fixed top-0 w-full z-40 transition-all duration-300">
+        <div class="max-w-xl mx-auto px-5 py-4 flex justify-between items-center">
+            <div><h1 class="text-xl font-bold tracking-tight text-slate-900">Global Picks<span class="text-indigo-500">.</span></h1></div>
+            <div class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400"><i class="fas fa-user text-xs"></i></div>
+        </div>
+        <div class="max-w-xl mx-auto px-4 pb-3 overflow-x-auto hide-scrollbar flex gap-2">
+            <button class="filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-md transition" onclick="filterItems('country', '')">🌍 전체</button>
+            <div id="countryFilterContainer" class="flex gap-2"></div>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto pt-36 pb-28 px-4">
+        <div class="mb-6 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden shine-effect">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+            <div class="relative z-10">
+                <p class="text-xs font-bold text-indigo-200 mb-1 tracking-wide">GLOBAL SHOPPING COMMUNITY</p>
+                <h2 class="font-bold text-lg mb-2 leading-tight">"다들 해외에서 뭐 사고 지내요?" 🛒</h2>
+                <p class="text-xs text-indigo-100 opacity-90 leading-relaxed">전 세계 한국인이 직접 검증한 <b>현지 찐꿀템</b>을<br>자유롭게 공유하고 찾아보세요.</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-2 mb-6">
+            <div class="relative flex-1 group">
+                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 text-sm group-focus-within:text-indigo-500 transition-colors"></i>
+                <input type="text" id="searchInput" placeholder="아이템 검색..." class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
+            </div>
+            <div class="relative w-1/3 min-w-[110px]">
+                <select id="headerTagFilter" onchange="filterItems('tag', this.value)" class="w-full h-full bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-2xl px-3 pl-2 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
+                    <option value="">🏷️ 태그 전체</option>
+                    <option value="현지필수템">🔥 현지필수템</option>
+                    <option value="가성비갑">💰 가성비갑</option>
+                    <option value="선물강추">🎁 선물강추</option>
+                    <option value="희귀템">💎 희귀템</option>
+                    <option value="세일정보">📉 세일정보</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+            </div>
+        </div>
+
+        <div id="itemList" class="grid grid-cols-2 gap-x-4 gap-y-6">
+            <div class="animate-pulse"><div class="bg-slate-200 h-40 rounded-2xl mb-3"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div></div>
+            <div class="animate-pulse"><div class="bg-slate-200 h-40 rounded-2xl mb-3"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-6 right-6 z-30">
+        <button onclick="openRegisterModal()" class="fab w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl hover:bg-indigo-700"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div id="registerModal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div class="bottom-sheet bg-white w-full flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+                <h2 class="text-lg font-bold text-slate-800" id="modalTitle">추천템 등록</h2>
+                <button onclick="closeModal('registerModal')" class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <form id="itemForm" class="p-6 overflow-y-auto space-y-6 flex-1">
+                <input type="hidden" name="id" id="editId">
+                <input type="hidden" name="action" id="formAction" value="create">
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">사진 (최대 3장)</label>
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                        <label class="flex-shrink-0 w-20 h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors">
+                            <i class="fas fa-camera text-slate-400 mb-1"></i>
+                            <span class="text-[10px] text-slate-400 font-bold" id="imgCount">0/3</span>
+                            <input type="file" id="fileInput" accept="image/*" class="hidden" multiple onchange="handleFileSelect(this)">
+                        </label>
+                        <div id="imagePreviewContainer" class="flex gap-3"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">상품명</label>
+                    <input type="text" name="name" id="inputName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">국가</label>
+                        <select name="countrySelect" id="countrySelect" onchange="handleCountryChange(this)" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none"></select>
+                        <input type="text" name="customCountry" id="customCountryInput" placeholder="직접 입력" class="hidden w-full mt-2 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">태그</label>
+                        <select name="tag" id="inputTag" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none">
+                            <option value="현지필수템">🔥 현지필수템</option>
+                            <option value="가성비갑">💰 가성비갑</option>
+                            <option value="선물강추">🎁 선물강추</option>
+                            <option value="희귀템">💎 희귀템</option>
+                            <option value="세일정보">📉 세일정보</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">가격</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span id="currencySymbol" class="text-gray-500 font-bold sm:text-sm">$</span>
+                            </div>
+                            <input type="number" step="0.01" name="priceRaw" id="priceRaw" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1.5">종료일</label>
+                        <input type="date" name="endDate" id="inputEndDate" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">설명</label>
+                    <textarea name="desc" id="inputDesc" rows="4" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none resize-none"></textarea>
+                </div>
+
+                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                    <label class="block text-xs font-bold text-indigo-900 mb-1.5">구매 링크</label>
+                    <input type="url" name="link" id="inputLink" placeholder="https://" class="w-full bg-white border border-indigo-200 rounded-lg p-2.5 text-sm outline-none mb-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="isAffiliateInput" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                        <span class="text-xs text-indigo-800 font-medium">🎁 제휴(수익성) 링크 포함</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">비밀번호 (4자리)</label>
+                    <input type="password" name="password" required maxlength="4" placeholder="본인 확인용" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98] transition-all" id="submitBtn">등록 완료</button>
+                <div class="h-6"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+        <div class="bottom-sheet bg-white w-full flex flex-col overflow-hidden shadow-2xl h-[90vh] sm:h-[85vh]">
+            <div id="detailContent" class="flex-1 overflow-y-auto relative bg-white"></div>
+            <div id="detailActions" class="px-6 py-3 bg-white flex justify-end gap-4 text-xs font-bold text-slate-400 border-t border-slate-50"></div>
+            <div class="p-4 bg-white safe-area-bottom flex gap-3">
+                <button onclick="closeModal('detailModal')" class="flex-1 py-3.5 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition">닫기</button>
+                <a id="detailLinkBtn" href="#" target="_blank" class="flex-[2] py-3.5 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-black transition"><span>구매하러 가기</span> <i class="fas fa-external-link-alt text-xs"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="popup-card bg-white rounded-2xl p-6 w-[85%] max-w-sm text-center shadow-2xl">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2" id="successTitle">완료</h3>
+            <p class="text-sm text-slate-500 mb-6 leading-relaxed" id="successMsg">처리되었습니다.</p>
+            <button onclick="location.reload()" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl hover:bg-indigo-700 transition-all">확인</button>
+        </div>
+    </div>
+    
+    <div id="passwordModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+        <div class="popup-card bg-white rounded-2xl p-6 w-[85%] max-w-sm shadow-xl">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">비밀번호 확인</h3>
+            <input type="password" id="deletePasswordInput" placeholder="4자리 비밀번호" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4 text-center tracking-widest">
+            <div class="flex gap-2">
+                <button onclick="closeModal('passwordModal')" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold">취소</button>
+                <button onclick="confirmDelete()" class="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600">삭제하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ▼▼▼ 여기에 배포된 Apps Script URL을 반드시 새로 넣어주세요 ▼▼▼
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGyyWXzQTDj51L9fC4V_TYYthh7jrIN_2G_D7NxjZJ8KBrh1humPzM-mRtc9efC3PDvg/exec'; 
+
+        const currencyMap = { "미국": "$", "일본": "¥", "중국": "¥", "베트남": "₫", "태국": "฿", "필리핀": "₱", "유럽": "€", "영국": "£", "호주": "A$", "캐나다": "C$", "대만": "NT$", "싱가포르": "S$", "말레이시아": "RM", "인도네시아": "Rp", "한국": "₩", "기타": "$" };
+        const countries = Object.keys(currencyMap).filter(k => k !== "기타"); countries.push("기타");
+        let allData = [];
+        let uploadFiles = [];
+        let currentFilter = { country: '', tag: '', search: '' };
+        let deleteTargetId = null; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCountryFilter(); initFormSelect(); loadItems();
+            document.getElementById('searchInput').addEventListener('input', (e) => filterItems('search', e.target.value));
+        });
+
+        // --- 필터링 로직 ---
+        function filterItems(type, value) {
+            if (type === 'country') {
+                currentFilter.country = value;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    const isActive = (value === '' && btn.innerText.includes('전체')) || btn.innerText === value;
+                    btn.className = isActive 
+                        ? 'filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-md transition'
+                        : 'filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-xs font-bold shadow-sm transition active:scale-95';
+                });
+            } else if (type === 'tag') currentFilter.tag = value;
+            else if (type === 'search') currentFilter.search = value.toLowerCase();
+
+            const filtered = allData.filter(item => {
+                const matchCountry = !currentFilter.country || item.country === currentFilter.country;
+                const matchTag = !currentFilter.tag || item.tag === currentFilter.tag;
+                const matchSearch = !currentFilter.search || item.name.toLowerCase().includes(currentFilter.search) || item.desc.toLowerCase().includes(currentFilter.search);
+                return matchCountry && matchTag && matchSearch;
+            });
+            renderItems(filtered);
+        }
+
+        // --- 상세 화면 및 수정/삭제 ---
+        function openDetail(item) {
+            const content = document.getElementById('detailContent');
+            const linkBtn = document.getElementById('detailLinkBtn');
+            const actionsDiv = document.getElementById('detailActions');
+            const tagClass = getTagStyle(item.tag);
+
+            // [핵심] 이미지 안전 로딩 (onerror 추가)
+            let sliderHtml = '', indicatorHtml = '';
+            if (item.imageUrls && item.imageUrls.length > 0) {
+                sliderHtml = item.imageUrls.map(url => `
+                    <div class="slider-item w-full flex-shrink-0 relative aspect-square sm:aspect-video bg-black flex items-center justify-center">
+                        <img src="${url}" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/600x400/f1f5f9/94a3b8?text=No+Image';">
+                    </div>`).join('');
+                if (item.imageUrls.length > 1) { 
+                    indicatorHtml = `<div class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">${item.imageUrls.map(() => `<div class="w-1.5 h-1.5 rounded-full bg-white/50 backdrop-blur-sm"></div>`).join('')}</div>`; 
+                }
+            } else { 
+                sliderHtml = `<div class="w-full aspect-square bg-slate-100 flex items-center justify-center text-slate-300"><i class="fas fa-image text-4xl"></i></div>`; 
+            }
+
+            const affiliateAlert = item.isAffiliate ? `<div class="bg-amber-50 text-amber-700 text-xs px-3 py-2 rounded-lg mb-4 flex items-start gap-2 border border-amber-100"><i class="fas fa-gift mt-0.5"></i> <span>작성자에게 도움이 되는 제휴 링크가 포함되어 있어요.</span></div>` : '';
+
+            content.innerHTML = `
+                <div class="relative w-full overflow-x-auto slider-scroll flex bg-slate-50">${sliderHtml}${indicatorHtml}</div>
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-3"><span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">${item.country}</span><span class="${tagClass} tag-badge">${item.tag}</span></div>
+                    <h2 class="text-2xl font-bold text-slate-900 leading-tight mb-2">${item.name}</h2>
+                    <p class="text-xl font-extrabold text-indigo-600 mb-6">${item.price}</p>
+                    ${affiliateAlert}
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4"><p class="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">${item.desc}</p></div>
+                    <div class="flex justify-between text-xs text-slate-400"><span>마감: ${item.endDate}</span></div>
+                </div>`;
+
+            if (item.link) { linkBtn.href = item.link; linkBtn.classList.remove('opacity-50', 'pointer-events-none'); linkBtn.innerHTML = `<span>구매하러 가기</span> <i class="fas fa-arrow-right text-xs"></i>`; } 
+            else { linkBtn.href = '#'; linkBtn.classList.add('opacity-50', 'pointer-events-none'); linkBtn.innerHTML = `<span>구매 링크 없음</span>`; }
+
+            const safeItem = encodeURIComponent(JSON.stringify(item));
+            actionsDiv.innerHTML = `
+                <button onclick="requestEdit('${safeItem}')" class="hover:text-indigo-600 flex items-center gap-1"><i class="far fa-edit"></i> 수정</button>
+                <div class="w-px h-3 bg-slate-200"></div>
+                <button onclick="openDeleteModal('${item.id}')" class="hover:text-red-500 flex items-center gap-1"><i class="far fa-trash-alt"></i> 삭제</button>
+            `;
+            openModal('detailModal');
+        }
+
+        // --- 삭제 로직 ---
+        function openDeleteModal(id) {
+            deleteTargetId = id;
+            document.getElementById('deletePasswordInput').value = '';
+            openModal('passwordModal');
+        }
+
+        function confirmDelete() {
+            const password = document.getElementById('deletePasswordInput').value;
+            if (!password) return alert('비밀번호를 입력해주세요.');
+            closeModal('passwordModal');
+            
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', id: deleteTargetId, password: password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    showSuccessModal("삭제 완료", "게시물이 삭제되었습니다.");
+                } else {
+                    alert("삭제 실패: " + data.error);
+                }
+            })
+            .catch(() => alert("서버 통신 오류"));
+        }
+
+        // --- 수정 로직 ---
+        function requestEdit(encodedItem) {
+            const item = JSON.parse(decodeURIComponent(encodedItem));
+            closeModal('detailModal');
+            
+            document.getElementById('modalTitle').innerText = "게시물 수정";
+            document.getElementById('formAction').value = "edit";
+            document.getElementById('editId').value = item.id;
+            document.getElementById('inputName').value = item.name;
+            
+            const countrySelect = document.getElementById('countrySelect');
+            if ([...countrySelect.options].map(o => o.value).includes(item.country)) {
+                countrySelect.value = item.country;
+            } else {
+                countrySelect.value = 'direct';
+                document.getElementById('customCountryInput').value = item.country;
+            }
+            handleCountryChange(countrySelect);
+
+            document.getElementById('inputTag').value = item.tag;
+            const priceNum = item.price.replace(/[^0-9.]/g, '');
+            document.getElementById('priceRaw').value = priceNum;
+            document.getElementById('inputEndDate').value = item.endDate;
+            document.getElementById('inputDesc').value = item.desc;
+            document.getElementById('inputLink').value = item.link;
+            document.getElementById('isAffiliateInput').checked = item.isAffiliate;
+            document.getElementById('submitBtn').innerText = "수정하기";
+            
+            uploadFiles = []; 
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('imgCount').innerText = '0/3';
+            openModal('registerModal');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('itemForm').reset();
+            document.getElementById('modalTitle').innerText = "추천템 등록";
+            document.getElementById('formAction').value = "create";
+            document.getElementById('submitBtn').innerText = "등록 완료";
+            uploadFiles = [];
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('imgCount').innerText = '0/3';
+            handleCountryChange(document.getElementById('countrySelect'));
+            openModal('registerModal');
+        }
+
+        document.getElementById('itemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText; btn.disabled = true; btn.innerText = '처리 중...';
+
+            const formData = new FormData(this);
+            const symbol = document.getElementById('currencySymbol').innerText;
+            const priceVal = document.getElementById('priceRaw').value;
+
+            const payload = {
+                action: document.getElementById('formAction').value,
+                id: document.getElementById('editId').value,
+                name: formData.get('name'),
+                country: formData.get('countrySelect') === 'direct' ? formData.get('customCountry') : formData.get('countrySelect'),
+                category: '기타',
+                tag: formData.get('tag'),
+                price: priceVal ? (symbol + priceVal) : '',
+                desc: formData.get('desc'),
+                endDate: formData.get('endDate'),
+                link: formData.get('link'),
+                isAffiliate: document.getElementById('isAffiliateInput').checked,
+                password: formData.get('password'),
+                images: uploadFiles
+            };
+
+            try {
+                const res = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await res.json();
+                if(json.result === 'success') {
+                    closeModal('registerModal');
+                    const msg = payload.action === 'edit' ? "수정되었습니다." : "등록되었습니다.";
+                    showSuccessModal("완료", msg);
+                } else {
+                    alert("실패: " + json.error);
+                }
+            } catch (err) { alert('통신 오류: ' + err.message); } 
+            finally { btn.disabled = false; btn.innerText = originalText; }
+        });
+
+        // --- 유틸리티 ---
+        function showSuccessModal(title, msg) {
+            document.getElementById('successTitle').innerText = title;
+            document.getElementById('successMsg').innerText = msg;
+            openModal('successModal');
+        }
+
+        function handleCountryChange(select) {
+            const input = document.getElementById('customCountryInput');
+            const symbolSpan = document.getElementById('currencySymbol');
+            if(select.value === 'direct') { input.classList.remove('hidden'); input.required = true; symbolSpan.innerText = '$'; } 
+            else { input.classList.add('hidden'); input.required = false; symbolSpan.innerText = currencyMap[select.value] || '$'; }
+        }
+        function initCountryFilter() {
+            const container = document.getElementById('countryFilterContainer');
+            countries.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-white text-slate-600 border border-slate-200 text-xs font-bold shadow-sm transition active:scale-95';
+                btn.innerText = c;
+                btn.onclick = (e) => filterItems('country', c);
+                container.appendChild(btn);
+            });
+        }
+        function initFormSelect() {
+            const opts = countries.map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="direct">✏️ 직접 입력</option>';
+            document.getElementById('countrySelect').innerHTML = opts;
+            handleCountryChange(document.getElementById('countrySelect'));
+        }
+        function handleFileSelect(input) {
+            if (input.files) {
+                const remaining = 3 - uploadFiles.length;
+                if (remaining <= 0) { alert('사진은 최대 3장까지입니다.'); return; }
+                Array.from(input.files).slice(0, remaining).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => { uploadFiles.push({ data: e.target.result, name: file.name }); renderImagePreview(); };
+                    reader.readAsDataURL(file);
+                });
+            } input.value = ''; 
+        }
+        function renderImagePreview() {
+            const container = document.getElementById('imagePreviewContainer');
+            document.getElementById('imgCount').innerText = `${uploadFiles.length}/3`;
+            container.innerHTML = uploadFiles.map((file, idx) => `<div class="relative w-20 h-20 flex-shrink-0"><img src="${file.data}" class="w-full h-full object-cover rounded-xl border border-slate-200"><button onclick="removeImage(${idx})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm"><i class="fas fa-times"></i></button></div>`).join('');
+        }
+        function removeImage(idx) { uploadFiles.splice(idx, 1); renderImagePreview(); }
+        
+        async function loadItems() {
+            try { 
+                const res = await fetch(APPS_SCRIPT_URL); 
+                const data = await res.json(); 
+                allData = data.reverse(); 
+                renderItems(allData); 
+            } catch (err) { console.error(err); }
+        }
+
+        function renderItems(items) {
+            const container = document.getElementById('itemList');
+            container.innerHTML = '';
+            if (items.length === 0) { container.innerHTML = '<div class="col-span-full flex flex-col items-center justify-center py-20 text-slate-400"><i class="far fa-folder-open text-3xl mb-2"></i><span class="text-sm">등록된 아이템이 없습니다.</span></div>'; return; }
+            items.forEach(item => {
+                const tagClass = getTagStyle(item.tag);
+                // [핵심] 이미지 엑박 방지 onerror 적용
+                const thumb = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : '';
+                const imgHtml = thumb 
+                    ? `<img src="${thumb}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/600x400/f1f5f9/94a3b8?text=No+Image';">` 
+                    : `<div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300"><i class="fas fa-image text-2xl"></i></div>`;
+                
+                const affiliateIcon = item.isAffiliate ? '<span class="bg-amber-100 text-amber-600 text-[9px] px-1.5 py-0.5 rounded border border-amber-200 font-bold ml-1">🎁 제휴</span>' : '';
+                
+                const html = `
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 cursor-pointer active:scale-[0.98] transition-all" onclick='openDetail(${JSON.stringify(item)})'>
+                    <div class="aspect-[4/5] relative overflow-hidden bg-slate-50">
+                        ${imgHtml}
+                        <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-md">${item.country}</div>
+                        ${item.imageUrls.length > 1 ? '<div class="absolute top-2 right-2 bg-black/40 text-white text-[10px] px-1.5 py-0.5 rounded flex items-center"><i class="fas fa-clone mr-1"></i>'+item.imageUrls.length+'</div>' : ''}
+                    </div>
+                    <div class="p-3">
+                        <div class="flex items-start justify-between mb-1"><span class="${tagClass} tag-badge">${item.tag}</span></div>
+                        <h3 class="font-bold text-sm text-slate-800 line-clamp-2 leading-tight mb-2 min-h-[2.5em]">${item.name}</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-indigo-600 text-sm">${item.price}</span>
+                            ${affiliateIcon}
+                        </div>
+                    </div>
+                </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        function getTagStyle(tag) { const map = { '현지필수템': 'tag-hot', '가성비갑': 'tag-cost', '선물강추': 'tag-gift', '희귀템': 'tag-rare', '세일정보': 'tag-sale' }; return map[tag] || 'bg-slate-100 text-slate-500'; }
+        function openModal(id) { const el = document.getElementById(id); el.classList.remove('hidden'); setTimeout(() => el.classList.add('active'), 10); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { const el = document.getElementById(id); el.classList.remove('active'); setTimeout(() => el.classList.add('hidden'), 300); document.body.style.overflow = ''; }
+    </script>
+</body>
+</html>
