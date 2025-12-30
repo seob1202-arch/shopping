@@ -11,63 +11,54 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
     <style>
-        /* 기본 폰트 설정 */
         body { 
             font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background-color: #F1F5F9; /* Slate-100: 더 차분한 배경 */
-            color: #334155; /* Slate-700 */
+            background-color: #F8FAFC;
+            color: #334155;
             -webkit-tap-highlight-color: transparent;
         }
-        
-        /* 스크롤바 숨김 */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 헤더 글래스 효과 */
+        /* 헤더 & FAB */
         .glass-header { 
-            background: rgba(255, 255, 255, 0.8); 
+            background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(12px); 
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
-        
-        /* FAB 버튼 애니메이션 */
         .fab { 
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); 
+            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.5); 
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .fab:active { transform: scale(0.9); }
-        .fab:hover { transform: translateY(-4px); }
+        .fab:active { transform: scale(0.92); }
+        .fab:hover { transform: translateY(-2px) scale(1.02); }
 
-        /* 모달 애니메이션 */
-        .modal-overlay { opacity: 0; pointer-events: none; transition: all 0.3s ease-out; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); }
+        /* 모달 관련 */
+        .modal-overlay { opacity: 0; pointer-events: none; transition: all 0.3s ease-out; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(6px); }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-height: 92vh; border-radius: 24px 24px 0 0; }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-height: 92vh; border-radius: 28px 28px 0 0; }
         .modal-overlay.active .bottom-sheet { transform: translateY(0); }
-        
-        .popup-card { transform: scale(0.9) translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .popup-card { transform: scale(0.95) translateY(10px); opacity: 0; transition: all 0.25s ease-out; }
         .modal-overlay.active .popup-card { transform: scale(1) translateY(0); opacity: 1; }
 
         @media (min-width: 640px) {
-            .bottom-sheet { transform: scale(0.95); opacity: 0; border-radius: 24px; max-height: 85vh; width: 100%; max-width: 480px; margin: auto; }
-            .modal-overlay.active .bottom-sheet { transform: scale(1); opacity: 1; }
+            .bottom-sheet { transform: scale(0.98) translateY(10px); opacity: 0; border-radius: 24px; max-height: 85vh; width: 100%; max-width: 480px; margin: auto; }
+            .modal-overlay.active .bottom-sheet { transform: scale(1) translateY(0); opacity: 1; }
         }
         
-        /* 이미지 슬라이더 */
+        /* 기타 */
         .slider-scroll { scroll-snap-type: x mandatory; }
         .slider-item { scroll-snap-align: center; }
         
-        /* 배너 쉬머 효과 */
         @keyframes shine { 
             0% { transform: translateX(-100%) skewX(-15deg); } 
             100% { transform: translateX(200%) skewX(-15deg); } 
         }
         .shine-effect::after { 
             content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%; 
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); 
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent); 
             transform: translateX(-100%); 
-            animation: shine 4s infinite ease-in-out; 
+            animation: shine 3s infinite ease-in-out; 
         }
     </style>
 </head>
@@ -76,39 +67,39 @@
     <header class="glass-header fixed top-0 w-full z-40 transition-all duration-300">
         <div class="max-w-xl mx-auto px-5 py-4 flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-extrabold tracking-tight text-slate-900">
+                <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">
                     Global<span class="text-indigo-600">Picks</span>
                 </h1>
             </div>
-            <div class="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors cursor-pointer">
-                <i class="fas fa-user text-sm"></i>
+            <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer">
+                <i class="fas fa-user"></i>
             </div>
         </div>
-        <div class="max-w-xl mx-auto px-4 pb-3 overflow-x-auto hide-scrollbar flex gap-2">
-            <button class="filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg shadow-slate-200 transition-all transform active:scale-95" onclick="filterItems('country', '')">🌍 전체</button>
+        <div class="max-w-xl mx-auto px-5 pb-3 overflow-x-auto hide-scrollbar flex gap-2">
+            <button class="filter-btn active whitespace-nowrap px-4 py-2.5 rounded-full bg-slate-900 text-white text-[13px] font-bold shadow-md transition-all transform active:scale-95" onclick="filterItems('country', '')">🌍 전체</button>
             <div id="countryFilterContainer" class="flex gap-2"></div>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto pt-36 pb-32 px-4">
+    <main class="max-w-xl mx-auto pt-[148px] pb-32 px-5">
         
-        <div class="mb-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200/50 relative overflow-hidden shine-effect">
+        <div class="mb-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-[2rem] p-7 text-white shadow-xl shadow-indigo-200/40 relative overflow-hidden shine-effect">
             <div class="relative z-10">
-                <p class="text-[10px] font-bold text-indigo-100 mb-2 tracking-widest uppercase bg-white/20 inline-block px-2 py-1 rounded-md backdrop-blur-sm">Community</p>
-                <h2 class="font-bold text-xl mb-2 leading-snug tracking-tight">"다들 해외에서 뭐 사요?" 🛒</h2>
-                <p class="text-sm text-indigo-50 font-medium leading-relaxed opacity-90">전 세계 한국인의 검증된<br>현지 찐꿀템을 만나보세요.</p>
+                <p class="text-xs font-bold text-indigo-100 mb-2 tracking-wider uppercase bg-white/20 inline-block px-2.5 py-1 rounded-lg backdrop-blur-sm">Community Pick</p>
+                <h2 class="font-black text-2xl mb-2 leading-snug tracking-tight">"다들 해외에서 뭐 사요?" 🛒</h2>
+                <p class="text-[15px] text-indigo-50 font-medium leading-relaxed opacity-95">전 세계 한국인의 검증된<br>현지 찐꿀템을 만나보세요.</p>
             </div>
-            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-            <div class="absolute top-10 right-10 w-16 h-16 bg-yellow-300/20 rounded-full blur-xl"></div>
+            <div class="absolute -bottom-12 -right-12 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute top-8 right-8 w-20 h-20 bg-yellow-300/20 rounded-full blur-xl"></div>
         </div>
         
-        <div class="flex gap-3 mb-6 sticky top-[135px] z-30 py-2 -mx-4 px-4 backdrop-blur-sm bg-slate-100/50">
+        <div class="flex gap-3 mb-8 sticky top-[148px] z-30 py-3 -mx-5 px-5 backdrop-blur-md bg-F8FAFC/80">
             <div class="relative flex-1 group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm group-focus-within:text-indigo-500 transition-colors"></i>
-                <input type="text" id="searchInput" placeholder="아이템 검색..." class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 shadow-sm transition-all">
+                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-sm group-focus-within:text-indigo-500 transition-colors"></i>
+                <input type="text" id="searchInput" placeholder="아이템 검색..." class="w-full bg-white border-0 ring-1 ring-slate-200 rounded-2xl pl-12 pr-4 py-4 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all placeholder:text-slate-400">
             </div>
-            <div class="relative w-[35%] min-w-[120px]">
-                <select id="headerTagFilter" onchange="filterItems('tag', this.value)" class="w-full h-full bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-2xl px-3 pl-3 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm transition-all cursor-pointer">
+            <div class="relative w-[38%] min-w-[130px]">
+                <select id="headerTagFilter" onchange="filterItems('tag', this.value)" class="w-full h-full bg-white border-0 ring-1 ring-slate-200 text-slate-600 text-[13px] font-bold rounded-2xl px-4 pl-4 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all cursor-pointer">
                     <option value="">🏷️ 태그 전체</option>
                     <option value="현지필수템">🔥 현지필수템</option>
                     <option value="가성비갑">💰 가성비갑</option>
@@ -116,110 +107,115 @@
                     <option value="희귀템">💎 희귀템</option>
                     <option value="세일정보">📉 세일정보</option>
                 </select>
-                <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
             </div>
         </div>
 
-        <div id="itemList" class="grid grid-cols-2 gap-x-4 gap-y-6">
-            <div class="animate-pulse bg-white p-2 rounded-2xl shadow-sm"><div class="bg-slate-200 aspect-[4/5] rounded-xl mb-3"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div></div>
-            <div class="animate-pulse bg-white p-2 rounded-2xl shadow-sm"><div class="bg-slate-200 aspect-[4/5] rounded-xl mb-3"></div><div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div><div class="h-4 bg-slate-200 rounded w-1/2"></div></div>
+        <div id="itemList" class="grid grid-cols-2 gap-x-4 gap-y-8">
+            <div class="animate-pulse"><div class="bg-slate-200 aspect-[4/5] rounded-3xl mb-4"></div><div class="flex justify-between mb-2"><div class="h-5 bg-slate-200 rounded w-1/3"></div><div class="h-5 bg-slate-200 rounded w-1/4"></div></div><div class="h-6 bg-slate-200 rounded w-3/4"></div></div>
+            <div class="animate-pulse"><div class="bg-slate-200 aspect-[4/5] rounded-3xl mb-4"></div><div class="flex justify-between mb-2"><div class="h-5 bg-slate-200 rounded w-1/3"></div><div class="h-5 bg-slate-200 rounded w-1/4"></div></div><div class="h-6 bg-slate-200 rounded w-3/4"></div></div>
         </div>
     </main>
 
-    <div class="fixed bottom-8 right-6 z-30">
-        <button onclick="openRegisterModal()" class="fab w-14 h-14 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300"><i class="fas fa-plus"></i></button>
+    <div class="fixed bottom-10 right-6 z-30">
+        <button onclick="openRegisterModal()" class="fab w-[3.75rem] h-[3.75rem] bg-indigo-600 rounded-full flex items-center justify-center text-white text-2xl hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
     <div id="registerModal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center">
         <div class="bottom-sheet bg-white w-full flex flex-col overflow-hidden shadow-2xl">
-            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
-                <h2 class="text-lg font-bold text-slate-900 tracking-tight" id="modalTitle">새로운 꿀템 등록</h2>
-                <button onclick="closeModal('registerModal')" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
+            <div class="px-7 py-5 border-b border-slate-100 flex justify-between items-center sticky top-0 z-10 bg-white/80 backdrop-blur-md">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight" id="modalTitle">새로운 꿀템 등록</h2>
+                <button onclick="closeModal('registerModal')" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors"><i class="fas fa-times"></i></button>
             </div>
             
-            <form id="itemForm" class="p-6 overflow-y-auto space-y-6 flex-1 bg-white">
+            <form id="itemForm" class="p-7 overflow-y-auto space-y-7 flex-1">
                 <input type="hidden" name="id" id="editId">
                 <input type="hidden" name="action" id="formAction" value="create">
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Images (Max 3)</label>
+                    <label class="block text-xs font-extrabold text-slate-500 mb-3 uppercase tracking-wider ml-1">사진 (최대 3장)</label>
                     <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        <label class="flex-shrink-0 w-20 h-20 border-2 border-dashed border-indigo-200 bg-indigo-50/50 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
-                            <i class="fas fa-camera text-indigo-300 group-hover:text-indigo-500 text-lg mb-1 transition-colors"></i>
-                            <span class="text-[10px] text-indigo-400 font-bold" id="imgCount">0/3</span>
+                        <label class="flex-shrink-0 w-[5.5rem] h-[5.5rem] border-2 border-dashed border-slate-300 bg-slate-50 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/50 transition-all group">
+                            <i class="fas fa-camera text-slate-400 group-hover:text-indigo-500 text-xl mb-1 transition-colors"></i>
+                            <span class="text-[11px] text-slate-500 group-hover:text-indigo-600 font-bold" id="imgCount">0/3</span>
                             <input type="file" id="fileInput" accept="image/*" class="hidden" multiple onchange="handleFileSelect(this)">
                         </label>
                         <div id="imagePreviewContainer" class="flex gap-3"></div>
                     </div>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">상품명</label>
-                        <input type="text" name="name" id="inputName" required class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400" placeholder="예: 트레이더조 에코백">
+                        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">상품명</label>
+                        <input type="text" name="name" id="inputName" required class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] font-medium focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-slate-400" placeholder="예: 트레이더조 에코백">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">국가</label>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">국가</label>
                             <div class="relative">
-                                <select name="countrySelect" id="countrySelect" onchange="handleCountryChange(this)" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium appearance-none focus:ring-2 focus:ring-indigo-500"></select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                                <select name="countrySelect" id="countrySelect" onchange="handleCountryChange(this)" class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] font-medium appearance-none focus:ring-2 focus:ring-indigo-500 transition-all"></select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
                             </div>
-                            <input type="text" name="customCountry" id="customCountryInput" placeholder="직접 입력" class="hidden w-full mt-2 bg-slate-50 border-0 rounded-2xl p-4 text-sm">
+                            <input type="text" name="customCountry" id="customCountryInput" placeholder="직접 입력" class="hidden w-full mt-3 bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] font-medium focus:ring-2 focus:ring-indigo-500 transition-all">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">태그</label>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">태그</label>
                             <div class="relative">
-                                <select name="tag" id="inputTag" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium appearance-none focus:ring-2 focus:ring-indigo-500">
+                                <select name="tag" id="inputTag" class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] font-medium appearance-none focus:ring-2 focus:ring-indigo-500 transition-all">
                                     <option value="현지필수템">🔥 현지필수템</option>
                                     <option value="가성비갑">💰 가성비갑</option>
                                     <option value="선물강추">🎁 선물강추</option>
                                     <option value="희귀템">💎 희귀템</option>
                                     <option value="세일정보">📉 세일정보</option>
                                 </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">가격</label>
+                            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">가격</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <span id="currencySymbol" class="text-indigo-600 font-bold text-sm">$</span>
+                                    <span id="currencySymbol" class="text-indigo-600 font-black text-base">$</span>
                                 </div>
-                                <input type="number" step="0.01" name="priceRaw" id="priceRaw" placeholder="0.00" class="w-full bg-slate-50 border-0 rounded-2xl pl-8 p-4 text-sm font-bold focus:ring-2 focus:ring-indigo-500">
+                                <input type="number" step="0.01" name="priceRaw" id="priceRaw" placeholder="0.00" class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl pl-9 p-4 text-[15px] font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">게시 종료일</label>
-                            <input type="date" name="endDate" id="inputEndDate" required class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-indigo-500 text-slate-600">
+                            <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">종료일</label>
+                            <div class="relative">
+                                <input type="date" name="endDate" id="inputEndDate" required class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] font-medium focus:ring-2 focus:ring-indigo-500 text-slate-700 transition-all appearance-none">
+                                <i class="far fa-calendar absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                            </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">상세 설명</label>
-                        <textarea name="desc" id="inputDesc" rows="4" required class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm leading-relaxed focus:ring-2 focus:ring-indigo-500 resize-none placeholder-slate-400" placeholder="이 제품의 장점이나 구매 팁을 공유해주세요."></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">상세 설명</label>
+                        <textarea name="desc" id="inputDesc" rows="4" required class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] leading-relaxed focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-slate-400 transition-all" placeholder="이 제품의 장점이나 구매 팁을 공유해주세요."></textarea>
                     </div>
 
-                    <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                        <label class="block text-xs font-bold text-indigo-900 mb-1.5 ml-1">구매 링크</label>
-                        <input type="url" name="link" id="inputLink" placeholder="https://" class="w-full bg-white border border-indigo-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 mb-2">
-                        <label class="flex items-center space-x-2 cursor-pointer group select-none">
-                            <input type="checkbox" id="isAffiliateInput" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 transition">
-                            <span class="text-xs text-indigo-800 font-medium group-hover:text-indigo-600">🎁 제휴(수익성) 링크 포함</span>
+                    <div class="p-5 bg-indigo-50/60 rounded-2xl border border-indigo-100/80">
+                        <label class="block text-sm font-bold text-indigo-900 mb-2 ml-1">구매 링크</label>
+                        <input type="url" name="link" id="inputLink" placeholder="https://" class="w-full bg-white border-0 ring-1 ring-indigo-200 rounded-xl p-3.5 text-[15px] focus:ring-2 focus:ring-indigo-500 mb-3 transition-all">
+                        <label class="flex items-center space-x-3 cursor-pointer group select-none p-1">
+                            <input type="checkbox" id="isAffiliateInput" class="w-5 h-5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 transition">
+                            <span class="text-[13px] text-indigo-800 font-semibold group-hover:text-indigo-600 transition-colors">🎁 제휴(수익성) 링크 포함</span>
                         </label>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1.5 ml-1">비밀번호 (4자리)</label>
-                        <input type="password" name="password" required maxlength="4" placeholder="수정/삭제용 숫자" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm tracking-widest focus:ring-2 focus:ring-indigo-500">
+                        <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">비밀번호 (4자리)</label>
+                        <input type="password" name="password" required maxlength="4" placeholder="수정/삭제용 숫자" class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-[15px] tracking-[0.2em] font-bold focus:ring-2 focus:ring-indigo-500 transition-all text-center">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-200 hover:bg-black hover:shadow-xl active:scale-[0.98] transition-all duration-300" id="submitBtn">
+                <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-200/50 hover:bg-black hover:shadow-xl active:scale-[0.98] transition-all duration-300 text-[15px]" id="submitBtn">
                     등록 완료
                 </button>
                 <div class="h-6"></div>
@@ -229,56 +225,55 @@
 
     <div id="detailModal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center">
         <div class="bottom-sheet bg-white w-full flex flex-col overflow-hidden shadow-2xl h-[90vh] sm:h-[85vh]">
-            <div id="detailContent" class="flex-1 overflow-y-auto relative bg-white scrollbar-hide"></div>
+            <div id="detailContent" class="flex-1 overflow-y-auto relative bg-white scrollbar-hide overscroll-contain"></div>
             
-            <div class="bg-white border-t border-slate-100 safe-area-bottom">
-                <div id="detailActions" class="px-6 py-2 flex justify-end gap-3 text-xs font-bold text-slate-400"></div>
-                <div class="p-4 flex gap-3">
-                    <button onclick="closeModal('detailModal')" class="flex-1 py-4 rounded-2xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition active:scale-95">닫기</button>
-                    <a id="detailLinkBtn" href="#" target="_blank" class="flex-[2] py-4 rounded-2xl bg-indigo-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition active:scale-95">
-                        <span>구매하러 가기</span> <i class="fas fa-arrow-right text-xs"></i>
+            <div class="bg-white border-t border-slate-100 safe-area-bottom backdrop-blur-md bg-white/90 p-5">
+                <div id="detailActions" class="flex justify-end gap-4 text-[13px] font-bold text-slate-400 mb-5 px-1"></div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal('detailModal')" class="flex-1 py-4 rounded-2xl border-2 border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-all active:scale-[0.98] text-[15px]">닫기</button>
+                    <a id="detailLinkBtn" href="#" target="_blank" class="flex-[2] py-4 rounded-2xl bg-indigo-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all active:scale-[0.98] text-[15px]">
+                        <span>구매하러 가기</span> <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="successModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
-        <div class="popup-card bg-white rounded-3xl p-8 w-[80%] max-w-sm text-center shadow-2xl">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce">
+    <div id="successModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md hidden">
+        <div class="popup-card bg-white rounded-[2rem] p-8 w-[85%] max-w-sm text-center shadow-2xl">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 ring-8 ring-green-50">
                 <i class="fas fa-check text-2xl text-green-600"></i>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-2" id="successTitle">완료</h3>
-            <p class="text-sm text-slate-500 mb-8 leading-relaxed font-medium" id="successMsg">처리가 완료되었습니다.</p>
-            <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all">확인</button>
+            <h3 class="text-xl font-black text-slate-900 mb-2" id="successTitle">완료</h3>
+            <p class="text-[15px] text-slate-500 mb-8 leading-relaxed font-medium" id="successMsg">요청하신 작업이 처리되었습니다.</p>
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-all text-[15px] active:scale-[0.98]">확인</button>
         </div>
     </div>
     
-    <div id="passwordModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
-        <div class="popup-card bg-white rounded-3xl p-8 w-[80%] max-w-sm shadow-2xl">
-            <h3 class="text-lg font-bold text-slate-900 mb-4 text-center">비밀번호 확인</h3>
-            <input type="password" id="deletePasswordInput" placeholder="●●●●" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-lg font-bold text-center tracking-widest focus:ring-2 focus:ring-indigo-500 mb-6 text-slate-900">
+    <div id="passwordModal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md hidden">
+        <div class="popup-card bg-white rounded-[2rem] p-8 w-[85%] max-w-sm shadow-2xl">
+            <h3 class="text-lg font-black text-slate-900 mb-5 text-center">비밀번호 확인</h3>
+            <input type="password" id="deletePasswordInput" placeholder="●●●●" class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-2xl p-4 text-xl font-black text-center tracking-[0.3em] focus:ring-2 focus:ring-indigo-500 mb-6 text-slate-900 transition-all">
             <div class="flex gap-3">
-                <button onclick="closeModal('passwordModal')" class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50">취소</button>
-                <button onclick="confirmDelete()" class="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-600 shadow-lg shadow-red-200">삭제</button>
+                <button onclick="closeModal('passwordModal')" class="flex-1 py-3.5 rounded-2xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all active:scale-[0.98]">취소</button>
+                <button onclick="confirmDelete()" class="flex-1 py-3.5 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-600 shadow-lg shadow-red-200 transition-all active:scale-[0.98]">삭제하기</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ▼▼▼ 백엔드 URL 유지 ▼▼▼
+        // ▼▼▼ 백엔드 URL (그대로 유지) ▼▼▼
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEw2ilsYVihux-yYo3H0ZhsxBTwBAY9_XWpDVIMkyGeDe-NgGhqmTZhUz1-UWFmKCOCA/exec'; 
 
         const currencyMap = { "미국": "$", "일본": "¥", "중국": "¥", "베트남": "₫", "태국": "฿", "필리핀": "₱", "유럽": "€", "영국": "£", "호주": "A$", "캐나다": "C$", "대만": "NT$", "싱가포르": "S$", "말레이시아": "RM", "인도네시아": "Rp", "한국": "₩", "기타": "$" };
         const countries = Object.keys(currencyMap).filter(k => k !== "기타"); countries.push("기타");
         
-        // 태그별 컬러 매핑 (파스텔톤 배경 + 진한 텍스트)
         const tagStyles = {
-            '현지필수템': 'bg-rose-100 text-rose-600',
-            '가성비갑': 'bg-blue-100 text-blue-600',
-            '선물강추': 'bg-amber-100 text-amber-600',
-            '희귀템': 'bg-purple-100 text-purple-600',
-            '세일정보': 'bg-emerald-100 text-emerald-600'
+            '현지필수템': 'bg-rose-50 text-rose-600 border-rose-100',
+            '가성비갑': 'bg-blue-50 text-blue-600 border-blue-100',
+            '선물강추': 'bg-amber-50 text-amber-600 border-amber-100',
+            '희귀템': 'bg-purple-50 text-purple-600 border-purple-100',
+            '세일정보': 'bg-emerald-50 text-emerald-600 border-emerald-100'
         };
 
         let allData = [];
@@ -291,18 +286,16 @@
             document.getElementById('searchInput').addEventListener('input', (e) => filterItems('search', e.target.value));
         });
 
-        // UI Helpers
-        function getTagClass(tag) { return tagStyles[tag] || 'bg-slate-100 text-slate-500'; }
+        function getTagClass(tag) { return tagStyles[tag] || 'bg-slate-100 text-slate-500 border-slate-200'; }
 
-        // --- 필터링 ---
         function filterItems(type, value) {
             if (type === 'country') {
                 currentFilter.country = value;
                 document.querySelectorAll('.filter-btn').forEach(btn => {
                     const isActive = (value === '' && btn.innerText.includes('전체')) || btn.innerText === value;
                     btn.className = isActive 
-                        ? 'filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg shadow-slate-300 transition-all transform scale-105'
-                        : 'filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-white text-slate-500 border border-slate-200 text-xs font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50';
+                        ? 'filter-btn active whitespace-nowrap px-5 py-2.5 rounded-full bg-slate-900 text-white text-[13px] font-bold shadow-md shadow-slate-300 transition-all transform scale-105'
+                        : 'filter-btn whitespace-nowrap px-5 py-2.5 rounded-full bg-white text-slate-600 border border-slate-200 text-[13px] font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50';
                 });
             } else if (type === 'tag') currentFilter.tag = value;
             else if (type === 'search') currentFilter.search = value.toLowerCase();
@@ -316,96 +309,93 @@
             renderItems(filtered);
         }
 
-        // --- 렌더링 (리스트 UI 핵심) ---
         function renderItems(items) {
             const container = document.getElementById('itemList');
             container.innerHTML = '';
             
             if (items.length === 0) { 
                 container.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-24 text-slate-300">
-                        <i class="fas fa-search text-4xl mb-4 opacity-50"></i>
-                        <span class="text-sm font-medium">검색 결과가 없습니다.</span>
+                    <div class="col-span-full flex flex-col items-center justify-center py-32 text-slate-300">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-search text-3xl opacity-40"></i>
+                        </div>
+                        <span class="text-[15px] font-medium text-slate-400">검색 결과가 없습니다.</span>
                     </div>`; 
                 return; 
             }
 
             items.forEach(item => {
                 const tagClass = getTagClass(item.tag);
-                // 이미지 처리 (썸네일)
                 const thumb = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : null;
                 
-                // 이미지가 없을 때 보여줄 대체 UI (No Image 개선)
                 const imgHtml = thumb 
-                    ? `<img src="${thumb}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-full bg-slate-50 flex flex-col items-center justify-center text-slate-300\\'><i class=\\'fas fa-image text-3xl mb-1\\'></i><span class=\\'text-[10px] font-bold\\'>No Image</span></div>';">` 
-                    : `<div class="w-full h-full bg-slate-50 flex flex-col items-center justify-center text-slate-300">
-                        <i class="fas fa-camera text-2xl mb-1 opacity-50"></i>
+                    ? `<img src="${thumb}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-full bg-slate-100 flex flex-col items-center justify-center text-slate-300\\'><i class=\\'fas fa-image text-4xl mb-2 opacity-50\\'></i><span class=\\'text-xs font-bold\\'>No Image</span></div>';">` 
+                    : `<div class="w-full h-full bg-slate-50 flex flex-col items-center justify-center text-slate-300/50">
+                        <i class="fas fa-camera text-3xl mb-2"></i>
                        </div>`;
                 
-                const affiliateIcon = item.isAffiliate ? '<span class="bg-amber-50 text-amber-600 text-[10px] px-1.5 py-0.5 rounded-md font-bold border border-amber-100 flex items-center gap-1"><i class="fas fa-gift text-[9px]"></i> 제휴</span>' : '';
+                const affiliateIcon = item.isAffiliate ? '<span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 flex items-center gap-0.5"><i class="fas fa-gift text-[9px]"></i> 제휴</span>' : '';
                 const imageCountBadge = (item.imageUrls && item.imageUrls.length > 1) 
-                    ? `<div class="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="far fa-images"></i> ${item.imageUrls.length}</div>` 
+                    ? `<div class="absolute bottom-2 right-2 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="far fa-images"></i> ${item.imageUrls.length}</div>` 
                     : '';
 
                 const html = `
-                <div class="group bg-white rounded-3xl p-2.5 shadow-sm border border-slate-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300" onclick='openDetail(${JSON.stringify(item)})'>
-                    <div class="aspect-[4/5] relative overflow-hidden rounded-2xl bg-slate-100 isolate">
+                <div class="group bg-white rounded-[2rem] p-3 shadow-sm border border-slate-100 cursor-pointer hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 transition-all duration-300 relative" onclick='openDetail(${JSON.stringify(item)})'>
+                    <div class="aspect-[4/5] relative overflow-hidden rounded-[1.5rem] bg-slate-100 isolate">
                         ${imgHtml}
-                        <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-md text-slate-800 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm z-10 border border-white/50">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-[11px] font-black px-3 py-1 rounded-full shadow-sm z-10 border border-white/50">
                             ${item.country}
                         </div>
                         ${imageCountBadge}
                     </div>
                     
-                    <div class="pt-3 px-1 pb-1">
-                        <div class="flex items-start justify-between mb-1.5">
-                            <span class="${tagClass} text-[10px] font-bold px-2 py-0.5 rounded-md tracking-tight">${item.tag}</span>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="${tagClass} text-[11px] font-bold px-2.5 py-1 rounded-full border tracking-tight">${item.tag}</span>
+                             <div class="flex items-center gap-1.5">
+                                <span class="font-black text-[17px] text-slate-900 tracking-tight">${item.price}</span>
+                                ${affiliateIcon}
+                            </div>
                         </div>
-                        <h3 class="font-bold text-sm text-slate-800 line-clamp-2 leading-snug mb-2 min-h-[2.5em] group-hover:text-indigo-600 transition-colors">
+                        <h3 class="font-bold text-[15px] text-slate-800 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors tracking-tight">
                             ${item.name}
                         </h3>
-                        <div class="flex items-center justify-between mt-auto">
-                            <span class="font-extrabold text-base text-slate-900 tracking-tight">${item.price}</span>
-                            ${affiliateIcon}
                         </div>
-                    </div>
                 </div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         }
 
-        // --- 상세 모달 ---
         function openDetail(item) {
             const content = document.getElementById('detailContent');
             const linkBtn = document.getElementById('detailLinkBtn');
             const actionsDiv = document.getElementById('detailActions');
             const tagClass = getTagClass(item.tag);
 
-            // 이미지 슬라이더
             let sliderHtml = '', indicatorHtml = '';
             if (item.imageUrls && item.imageUrls.length > 0) {
                 sliderHtml = item.imageUrls.map(url => `
-                    <div class="slider-item w-full flex-shrink-0 relative aspect-square sm:aspect-[4/3] bg-slate-50 flex items-center justify-center overflow-hidden">
-                        <img src="${url}" class="w-full h-full object-contain backdrop-blur-3xl" onerror="this.src='https://placehold.co/600x400/f1f5f9/94a3b8?text=Image+Error';">
-                        <div class="absolute inset-0 z-[-1] bg-cover bg-center opacity-30 blur-2xl scale-110" style="background-image: url('${url}')"></div>
+                    <div class="slider-item w-full flex-shrink-0 relative aspect-square sm:aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden">
+                        <img src="${url}" class="w-full h-full object-contain backdrop-blur-3xl relative z-10" onerror="this.src='https://placehold.co/600x400/f1f5f9/94a3b8?text=Image+Error';">
+                        <div class="absolute inset-0 z-0 bg-cover bg-center opacity-20 blur-3xl scale-125" style="background-image: url('${url}')"></div>
                     </div>`).join('');
                 
                 if (item.imageUrls.length > 1) { 
-                    indicatorHtml = `<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-full">
-                        ${item.imageUrls.map(() => `<div class="w-1.5 h-1.5 rounded-full bg-white/90 shadow-sm"></div>`).join('')}
+                    indicatorHtml = `<div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/20 backdrop-blur-xl rounded-full z-20">
+                        ${item.imageUrls.map((_, i) => `<div class="w-1.5 h-1.5 rounded-full bg-white/90 shadow-sm ${i===0?'w-3':''}"></div>`).join('')}
                     </div>`; 
                 }
             } else { 
                 sliderHtml = `<div class="w-full aspect-square bg-slate-50 flex flex-col items-center justify-center text-slate-300">
-                    <i class="fas fa-camera text-4xl mb-2 opacity-50"></i>
-                    <span class="text-xs font-bold">No Image</span>
+                    <i class="fas fa-camera text-5xl mb-3 opacity-30"></i>
+                    <span class="text-[13px] font-bold opacity-50">No Image</span>
                 </div>`; 
             }
 
             const affiliateAlert = item.isAffiliate ? `
-                <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-5 flex items-start gap-3">
-                    <div class="bg-amber-100 text-amber-600 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"><i class="fas fa-gift text-xs"></i></div>
-                    <div class="text-xs text-amber-800 leading-relaxed font-medium">
+                <div class="bg-amber-50/80 border border-amber-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
+                    <div class="bg-amber-100 text-amber-600 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-gift text-sm"></i></div>
+                    <div class="text-[13px] text-amber-800 leading-relaxed font-medium pt-0.5">
                         <span class="font-bold text-amber-900 block mb-0.5">제휴 링크 안내</span>
                         이 링크를 통해 구매하시면 작성자에게 소정의 수익이 발생할 수 있습니다.
                     </div>
@@ -414,55 +404,56 @@
             content.innerHTML = `
                 <div class="relative w-full overflow-x-auto slider-scroll flex bg-slate-100 snap-x snap-mandatory">
                     ${sliderHtml}${indicatorHtml}
-                    <button onclick="closeModal('detailModal')" class="absolute top-4 right-4 z-20 w-9 h-9 bg-white/80 text-slate-900 rounded-full flex items-center justify-center backdrop-blur-md shadow-sm border border-white/50"><i class="fas fa-times"></i></button>
+                    <button onclick="closeModal('detailModal')" class="absolute top-5 right-5 z-30 w-10 h-10 bg-white/50 text-slate-900 rounded-full flex items-center justify-center backdrop-blur-xl shadow-sm border border-white/40 transition-transform active:scale-90"><i class="fas fa-times text-lg"></i></button>
                 </div>
                 
-                <div class="p-6 relative -top-4 bg-white rounded-t-3xl">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-[10px] font-extrabold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">${item.country}</span>
-                        <span class="${tagClass} text-[10px] font-bold px-2.5 py-1 rounded-full">${item.tag}</span>
+                <div class="p-7 relative -top-6 bg-white rounded-t-[2.5rem]">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <span class="text-[11px] font-black text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">${item.country}</span>
+                        <span class="${tagClass} text-[11px] font-bold px-3 py-1 rounded-full border tracking-tight">${item.tag}</span>
                     </div>
                     
-                    <h2 class="text-2xl font-extrabold text-slate-900 leading-tight mb-2 tracking-tight">${item.name}</h2>
-                    <div class="text-2xl font-bold text-indigo-600 mb-6 tracking-tight">${item.price}</div>
+                    <h2 class="text-[26px] font-black text-slate-900 leading-tight mb-2 tracking-tight">${item.name}</h2>
+                    <div class="text-3xl font-black text-indigo-600 mb-7 tracking-tight flex items-center gap-2">
+                        ${item.price}
+                    </div>
                     
                     ${affiliateAlert}
                     
-                    <div class="prose prose-sm prose-slate max-w-none">
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Description</h4>
-                            <p class="text-sm text-slate-700 leading-7 whitespace-pre-wrap font-medium">${item.desc}</p>
+                    <div class="prose prose-slate max-w-none mb-6">
+                        <div class="bg-slate-50/80 p-6 rounded-3xl border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="far fa-comment-alt"></i> Description</h4>
+                            <p class="text-[15px] text-slate-700 leading-8 whitespace-pre-wrap font-medium">${item.desc}</p>
                         </div>
                     </div>
                     
-                    <div class="mt-4 flex items-center justify-between text-xs font-bold text-slate-400 px-2">
-                        <span><i class="far fa-clock mr-1"></i> 마감: ${item.endDate}</span>
+                    <div class="flex items-center justify-between text-[13px] font-bold text-slate-400 px-2 bg-slate-50 py-3 rounded-2xl">
+                        <span class="flex items-center gap-1.5"><i class="far fa-calendar-alt"></i> 마감: ${item.endDate}</span>
+                         <span class="flex items-center gap-1.5"><i class="far fa-edit"></i> 작성: ${new Date(parseInt(item.id)).toLocaleDateString()}</span>
                     </div>
                 </div>`;
 
-            // 링크 처리
             if (item.link) { 
                 linkBtn.href = item.link; 
-                linkBtn.classList.remove('opacity-50', 'pointer-events-none', 'bg-slate-300');
-                linkBtn.classList.add('bg-indigo-600', 'shadow-indigo-200');
-                linkBtn.innerHTML = `<span>구매하러 가기</span> <i class="fas fa-external-link-alt text-xs"></i>`; 
+                linkBtn.classList.remove('opacity-50', 'pointer-events-none', 'bg-slate-200', 'text-slate-400');
+                linkBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-indigo-200');
+                linkBtn.innerHTML = `<span>구매하러 가기</span> <i class="fas fa-external-link-alt text-sm"></i>`; 
             } else { 
                 linkBtn.href = '#'; 
-                linkBtn.classList.add('opacity-50', 'pointer-events-none', 'bg-slate-300');
-                linkBtn.classList.remove('bg-indigo-600', 'shadow-indigo-200');
+                linkBtn.classList.add('opacity-50', 'pointer-events-none', 'bg-slate-200', 'text-slate-400');
+                linkBtn.classList.remove('bg-indigo-600', 'text-white', 'shadow-indigo-200');
                 linkBtn.innerHTML = `<span>링크 없음</span>`; 
             }
 
             const safeItem = encodeURIComponent(JSON.stringify(item));
             actionsDiv.innerHTML = `
-                <button onclick="requestEdit('${safeItem}')" class="hover:text-indigo-600 flex items-center gap-1 transition-colors p-2"><i class="far fa-edit"></i> 수정</button>
-                <div class="w-px h-3 bg-slate-200 my-auto"></div>
-                <button onclick="openDeleteModal('${item.id}')" class="hover:text-red-500 flex items-center gap-1 transition-colors p-2"><i class="far fa-trash-alt"></i> 삭제</button>
+                <button onclick="requestEdit('${safeItem}')" class="hover:text-indigo-600 flex items-center gap-1.5 transition-colors py-2 px-3 rounded-lg hover:bg-indigo-50"><i class="far fa-edit"></i> 수정</button>
+                <div class="w-px h-4 bg-slate-200 my-auto"></div>
+                <button onclick="openDeleteModal('${item.id}')" class="hover:text-red-500 flex items-center gap-1.5 transition-colors py-2 px-3 rounded-lg hover:bg-red-50"><i class="far fa-trash-alt"></i> 삭제</button>
             `;
             openModal('detailModal');
         }
 
-        // --- 기타 기능 (등록/삭제/수정) ---
         function openDeleteModal(id) {
             deleteTargetId = id;
             document.getElementById('deletePasswordInput').value = '';
@@ -563,7 +554,6 @@
             finally { btn.disabled = false; btn.innerText = originalText; }
         });
 
-        // Common Functions
         function showSuccessModal(title, msg) {
             document.getElementById('successTitle').innerText = title;
             document.getElementById('successMsg').innerText = msg;
@@ -579,16 +569,16 @@
             const container = document.getElementById('countryFilterContainer');
             countries.forEach(c => {
                 const btn = document.createElement('button');
-                btn.className = 'filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-white text-slate-500 border border-slate-200 text-xs font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50';
+                btn.className = 'filter-btn whitespace-nowrap px-5 py-2.5 rounded-full bg-white text-slate-600 border border-slate-200 text-[13px] font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50';
                 btn.innerText = c;
                 btn.onclick = (e) => handleFilterClick(e.target, c);
                 container.appendChild(btn);
             });
         }
         function handleFilterClick(target, country) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-white text-slate-500 border border-slate-200 text-xs font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50');
-            if(!target) { document.querySelector('button[onclick="filterItems(\'country\', \'\')"]').className = 'filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg shadow-slate-300 transition-all transform scale-105'; filterItems('country', ''); return; }
-            target.className = 'filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg shadow-slate-300 transition-all transform scale-105';
+            document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn whitespace-nowrap px-5 py-2.5 rounded-full bg-white text-slate-600 border border-slate-200 text-[13px] font-bold shadow-sm transition-all active:scale-95 hover:bg-slate-50');
+            if(!target) { document.querySelector('button[onclick="filterItems(\'country\', \'\')"]').className = 'filter-btn active whitespace-nowrap px-5 py-2.5 rounded-full bg-slate-900 text-white text-[13px] font-bold shadow-md shadow-slate-300 transition-all transform scale-105'; filterItems('country', ''); return; }
+            target.className = 'filter-btn active whitespace-nowrap px-5 py-2.5 rounded-full bg-slate-900 text-white text-[13px] font-bold shadow-md shadow-slate-300 transition-all transform scale-105';
             filterItems('country', country);
         }
         function initFormSelect() {
@@ -611,9 +601,9 @@
             const container = document.getElementById('imagePreviewContainer');
             document.getElementById('imgCount').innerText = `${uploadFiles.length}/3`;
             container.innerHTML = uploadFiles.map((file, idx) => `
-                <div class="relative w-20 h-20 flex-shrink-0 group">
+                <div class="relative w-[5.5rem] h-[5.5rem] flex-shrink-0 group">
                     <img src="${file.data}" class="w-full h-full object-cover rounded-2xl border border-slate-200 shadow-sm">
-                    <button onclick="removeImage(${idx})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600 transition-colors"><i class="fas fa-times"></i></button>
+                    <button onclick="removeImage(${idx})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs shadow-md hover:bg-red-600 transition-colors"><i class="fas fa-times"></i></button>
                 </div>`).join('');
         }
         function removeImage(idx) { uploadFiles.splice(idx, 1); renderImagePreview(); }
