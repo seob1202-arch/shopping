@@ -222,7 +222,7 @@
 
     <script>
         // ▼▼▼ 여기에 배포된 Apps Script URL을 반드시 새로 넣어주세요 ▼▼▼
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGyyWXzQTDj51L9fC4V_TYYthh7jrIN_2G_D7NxjZJ8KBrh1humPzM-mRtc9efC3PDvg/exec'; 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEw2ilsYVihux-yYo3H0ZhsxBTwBAY9_XWpDVIMkyGeDe-NgGhqmTZhUz1-UWFmKCOCA/exec'; 
 
         const currencyMap = { "미국": "$", "일본": "¥", "중국": "¥", "베트남": "₫", "태국": "฿", "필리핀": "₱", "유럽": "€", "영국": "£", "호주": "A$", "캐나다": "C$", "대만": "NT$", "싱가포르": "S$", "말레이시아": "RM", "인도네시아": "Rp", "한국": "₩", "기타": "$" };
         const countries = Object.keys(currencyMap).filter(k => k !== "기타"); countries.push("기타");
@@ -509,4 +509,5 @@
         function closeModal(id) { const el = document.getElementById(id); el.classList.remove('active'); setTimeout(() => el.classList.add('hidden'), 300); document.body.style.overflow = ''; }
     </script>
 </body>
+
 </html>
