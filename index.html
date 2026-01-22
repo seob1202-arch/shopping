@@ -19,19 +19,22 @@
         /* 헤더 스타일 */
         .glass-header { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
         
-        /* 모달 위치 상단 정렬을 위한 스타일 */
+        /* 모달 오버레이 */
         .modal-overlay { 
             opacity: 0; pointer-events: none; transition: opacity 0.3s; 
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            align-items: flex-start; 
+            align-items: flex-start; /* 모바일 기본값 */
             padding-top: 3rem; 
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         
+        /* [모바일] 바텀 시트 스타일 */
         .bottom-sheet { 
             transform: translateY(20px); opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
-            border-radius: 20px; width: 95%; max-width: 500px; margin: 0 auto; 
-            max-height: 85vh; 
+            border-radius: 20px 20px 0 0; /* 모바일은 위쪽만 둥글게 */
+            width: 100%; max-width: 500px; margin: 0 auto; 
+            max-height: 85vh;
+            position: absolute; bottom: 0; left: 0; right: 0; /* 모바일 위치 고정 */
         }
         .modal-overlay.active .bottom-sheet { transform: translateY(0); opacity: 1; }
         
@@ -58,10 +61,10 @@
         }
         .modern-input::placeholder { color: #94A3B8; font-weight: 400; }
 
-        /* 리스트 카드 스타일 */
+        /* 리스트 카드 스타일 (기본 모바일) */
         .item-card {
             background: white; border-bottom: 1px solid #F1F5F9; padding: 16px 0;
-            display: flex; flex-direction: row; align-items: flex-start; gap: 14px; transition: background-color 0.2s;
+            display: flex; flex-direction: row; align-items: flex-start; gap: 14px; transition: all 0.2s;
         }
         .item-card:active { background-color: #F8FAFC; }
         .item-card:last-child { border-bottom: none; }
@@ -88,36 +91,93 @@
         #toast-container { visibility: hidden; min-width: 250px; background-color: #1e293b; color: #fff; text-align: center; border-radius: 50px; padding: 14px 20px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s, bottom 0.3s; font-size: 14px; font-weight: bold; }
         #toast-container.show { visibility: visible; opacity: 1; bottom: 50px; }
         
+        /* ▼▼▼ PC/태블릿 반응형 스타일 (핵심 추가) ▼▼▼ */
+        @media (min-width: 768px) {
+            /* 헤더 중앙 정렬 확장 */
+            .glass-header .max-w-xl { max-width: 1152px; } /* 6xl width */
+            
+            /* 리스트를 그리드로 변환 */
+            #itemList {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+                padding: 0.5rem;
+            }
+            @media (min-width: 1024px) {
+                #itemList { grid-template-columns: repeat(3, 1fr); }
+            }
+
+            /* 카드 스타일 PC 최적화 */
+            .item-card {
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                padding: 16px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                height: 100%;
+            }
+            .item-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                border-color: #00CCBC;
+            }
+            .item-card:last-child { border-bottom: 1px solid #E2E8F0; } /* 모바일 스타일 해제 */
+
+            /* 모달을 중앙 팝업으로 변경 */
+            .modal-overlay {
+                align-items: center; /* 수직 중앙 정렬 */
+                justify-content: center;
+                padding-top: 0;
+            }
+            .bottom-sheet {
+                position: relative; /* absolute 해제 */
+                bottom: auto; left: auto; right: auto;
+                border-radius: 24px; /* 전체 둥글게 */
+                max-width: 500px;
+                width: 90%;
+                transform: scale(0.95);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+            .modal-overlay.active .bottom-sheet {
+                transform: scale(1);
+            }
+            
+            /* 스크롤바 커스텀 (PC에서만) */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #f1f5f9; }
+            ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        }
+        
         @media (max-width: 768px) { input, select, textarea { font-size: 16px !important; } }
     </style>
 </head>
 <body>
 
-    <header class="glass-header fixed top-0 w-full z-40">
-        <div class="max-w-xl mx-auto px-5 py-3.5 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold tracking-tight text-[#00CCBC]">Kornect Picks<span class="text-slate-900">.</span></h1>
+    <header class="glass-header fixed top-0 w-full z-40 transition-all duration-300">
+        <div class="w-full max-w-xl md:max-w-6xl mx-auto px-5 py-3.5 flex justify-between items-center">
+            <h1 class="text-xl font-extrabold tracking-tight text-[#00CCBC] cursor-pointer" onclick="location.reload()">Kornect Picks<span class="text-slate-900">.</span></h1>
             <button onclick="shareApp()" class="w-9 h-9 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 transition border border-slate-100">
                 <i class="fas fa-arrow-up-from-bracket text-sm"></i>
             </button>
         </div>
-        <div class="max-w-xl mx-auto px-4 pb-3 overflow-x-auto hide-scrollbar flex gap-2">
+        <div class="w-full max-w-xl md:max-w-6xl mx-auto px-4 pb-3 overflow-x-auto hide-scrollbar flex gap-2">
             <button class="filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-[#00CCBC] text-white text-xs font-bold shadow-md transition" onclick="filterItems('country', '')">🌍 전체</button>
             <div id="countryFilterContainer" class="flex gap-2"></div>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto pt-36 pb-28 px-4">
+    <main class="w-full max-w-xl md:max-w-6xl mx-auto pt-36 pb-28 px-4">
         
-        <div class="mb-6 bg-gradient-to-r from-[#00CCBC] to-[#00b8a9] rounded-xl p-5 text-white shadow-lg relative overflow-hidden shine-effect">
+        <div class="mb-6 bg-gradient-to-r from-[#00CCBC] to-[#00b8a9] rounded-xl p-5 md:p-8 text-white shadow-lg relative overflow-hidden shine-effect flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
             <div class="relative z-10">
-                <p class="text-[10px] font-bold text-teal-100 mb-1 tracking-wider opacity-90">GLOBAL SHOPPING COMMUNITY</p>
-                <h2 class="font-bold text-lg mb-2 leading-tight">"뭐 괜찮은거 있나요?" 🛒</h2>
-                <p class="text-xs text-teal-50 opacity-95 leading-relaxed mb-3">전 세계 한국인이 직접 검증한 <b>현지 찐꿀템</b>을<br>공유하고 찾아보세요.</p>
-                <button onclick="shareApp()" class="text-[11px] font-bold bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 w-fit border border-white/20">
-                    <i class="fas fa-paper-plane text-[10px]"></i> 친구 초대하기
-                </button>
+                <p class="text-[10px] md:text-xs font-bold text-teal-100 mb-1 tracking-wider opacity-90">GLOBAL SHOPPING COMMUNITY</p>
+                <h2 class="font-bold text-lg md:text-2xl mb-2 leading-tight">"뭐 괜찮은거 있나요?" 🛒</h2>
+                <p class="text-xs md:text-sm text-teal-50 opacity-95 leading-relaxed">전 세계 한국인이 직접 검증한 <b>현지 찐꿀템</b>을<br class="md:hidden"> 공유하고 찾아보세요.</p>
             </div>
+            <button onclick="shareApp()" class="relative z-10 text-[11px] md:text-xs font-bold bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2.5 rounded-lg transition flex items-center gap-2 w-fit border border-white/20">
+                <i class="fas fa-paper-plane text-[10px]"></i> 친구 초대하기
+            </button>
         </div>
 
         <div class="flex gap-2 mb-6">
@@ -125,7 +185,7 @@
                 <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="아이템 검색..." class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00CCBC] shadow-sm transition">
             </div>
-            <div class="relative w-1/3 min-w-[110px]">
+            <div class="relative w-1/3 min-w-[110px] md:w-48">
                 <select id="headerTagFilter" onchange="filterItems('tag', this.value)" class="w-full h-full bg-white border border-slate-200 text-slate-600 text-xs font-bold rounded-2xl px-3 pl-2 appearance-none focus:outline-none focus:ring-2 focus:ring-[#00CCBC] shadow-sm">
                     <option value="">🏷️ 태그 전체</option>
                     <option value="현지필수템">🔥 현지필수템</option>
@@ -139,14 +199,14 @@
         </div>
 
         <div id="itemList" class="flex flex-col px-1">
-            <div class="text-center py-10 text-slate-400">
+            <div class="text-center py-10 text-slate-400 col-span-full">
                 <i class="fas fa-spinner fa-spin text-2xl mb-2 text-[#00CCBC]"></i><br>데이터를 불러오는 중...
             </div>
         </div>
     </main>
 
-    <div id="floatingBtn" class="fixed bottom-6 right-6 z-30 transition-transform duration-300">
-        <button onclick="openRegisterModal()" class="w-14 h-14 bg-[#00CCBC] rounded-full flex items-center justify-center text-white text-xl shadow-xl hover:bg-[#00b8a9] transition active:scale-95">
+    <div id="floatingBtn" class="fixed bottom-6 right-6 z-30 transition-transform duration-300 md:bottom-10 md:right-10">
+        <button onclick="openRegisterModal()" class="w-14 h-14 md:w-16 md:h-16 bg-[#00CCBC] rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-xl hover:bg-[#00b8a9] hover:scale-105 transition active:scale-95">
             <i class="fas fa-plus"></i>
         </button>
     </div>
@@ -244,7 +304,7 @@
 
                 <div class="h-4"></div>
                 
-                <div class="sticky bottom-0 bg-white pt-2 pb-4 -mx-6 px-6 border-t border-slate-50">
+                <div class="sticky bottom-0 bg-white pt-2 pb-4 -mx-6 px-6 border-t border-slate-50 md:rounded-b-3xl">
                     <button type="submit" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-black active:scale-[0.98] transition-all" id="submitBtn">등록 완료</button>
                 </div>
             </form>
@@ -255,7 +315,7 @@
         <div class="bottom-sheet bg-white w-full flex flex-col overflow-hidden shadow-2xl h-[85vh]">
             <div id="detailContent" class="flex-1 overflow-y-auto relative bg-white pb-20"></div>
             
-            <div class="absolute bottom-0 w-full bg-white border-t border-slate-100 p-4 safe-area-bottom flex gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-20">
+            <div class="absolute bottom-0 w-full bg-white border-t border-slate-100 p-4 safe-area-bottom flex gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-20 md:rounded-b-3xl">
                 <div class="flex items-center gap-1">
                       <button id="detailEditBtn" class="h-12 w-12 flex flex-col items-center justify-center text-slate-400 hover:text-slate-800 transition rounded-xl active:bg-slate-50">
                         <i class="fas fa-pen text-sm mb-1"></i>
@@ -321,7 +381,7 @@
             document.getElementById('searchInput').addEventListener('input', (e) => filterItems('search', e.target.value));
         });
 
-        // [핵심] 이미지 압축 함수 추가 (이전 요청사항 포함)
+        // [핵심] 이미지 압축 함수
         function resizeImage(file, maxWidth, maxHeight, quality, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -400,7 +460,7 @@
             container.innerHTML = '';
             
             if (items.length === 0) { 
-                container.innerHTML = `<div class="flex flex-col items-center justify-center py-24 text-slate-400"><i class="far fa-folder-open text-3xl mb-3 opacity-50"></i><span class="text-sm">검색 결과가 없습니다.</span></div>`; 
+                container.innerHTML = `<div class="flex flex-col items-center justify-center py-24 text-slate-400 col-span-full"><i class="far fa-folder-open text-3xl mb-3 opacity-50"></i><span class="text-sm">검색 결과가 없습니다.</span></div>`; 
                 return; 
             }
 
@@ -421,7 +481,7 @@
                         ${overlayHtml}
                     </div>
 
-                    <div class="flex-1 flex flex-col justify-between h-[110px] py-0.5 min-w-0 pr-5">
+                    <div class="flex-1 flex flex-col justify-between h-[110px] py-0.5 min-w-0 pr-5 md:pr-0">
                         <div>
                             <h3 class="text-[16px] font-bold text-slate-900 leading-snug line-clamp-2 mb-1 group-hover:text-[#00CCBC] transition-colors">
                                 ${item.name}
@@ -476,7 +536,7 @@
             const tagClass = getTagStyle(item.tag);
 
             content.innerHTML = `
-                <div class="relative w-full overflow-x-auto slider-scroll flex bg-slate-100">${sliderHtml}${indicatorHtml}</div>
+                <div class="relative w-full overflow-x-auto slider-scroll flex bg-slate-100 md:rounded-t-3xl">${sliderHtml}${indicatorHtml}</div>
                 <div class="px-5 py-6">
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex items-center gap-2">
