@@ -297,9 +297,17 @@
         </div>
     </div>
 
+    <div id="loadingModal" class="modal-overlay fixed inset-0 z-[70] flex items-center justify-center !pt-0 hidden">
+        <div class="popup-card bg-white rounded-2xl p-8 w-64 text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center">
+            <i class="fas fa-circle-notch fa-spin text-4xl text-[#00CCBC] mb-4"></i>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">업로드 중</h3>
+            <p class="text-xs text-slate-500">잠시만 기다려주세요...</p>
+        </div>
+    </div>
+
     <script>
-        // ▼▼▼ Apps Script URL ▼▼▼
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyN1VZsaKi7BggYcUDyyZGFMvbTDxpHZA40AtBz1K5gcMJabsDytGGjghktocG3VMYwhw/exec'; 
+        // ▼▼▼ Apps Script URL (이전 URL 유지) ▼▼▼
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzm2Oy7XCGecwnC597MJ9T2EFX-qusnifk5peoey18cQNrcSCvLnZg5p6rnojfQbxMi2Q/exec'; 
 
         const currencyMap = { "미국": "$", "일본": "¥", "중국": "¥", "베트남": "₫", "태국": "฿", "필리핀": "₱", "유럽": "€", "영국": "£", "호주": "A$", "캐나다": "C$", "대만": "NT$", "싱가포르": "S$", "말레이시아": "RM", "인도네시아": "Rp", "한국": "₩", "기타": "$" };
         const countries = Object.keys(currencyMap).filter(k => k !== "기타"); countries.push("기타");
@@ -312,6 +320,58 @@
             initCountryFilter(); initFormSelect(); loadItems();
             document.getElementById('searchInput').addEventListener('input', (e) => filterItems('search', e.target.value));
         });
+
+        // [핵심] 이미지 압축 함수 추가 (이전 요청사항 포함)
+        function resizeImage(file, maxWidth, maxHeight, quality, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height = Math.round(height * (maxWidth / width));
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width = Math.round(width * (maxHeight / height));
+                            height = maxHeight;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    callback(dataUrl);
+                }
+            }
+        }
+
+        // [핵심] 파일 선택 시 압축 적용
+        function handleFileSelect(inp) { 
+            if (inp.files) { 
+                const rem = 3 - uploadFiles.length; 
+                if (rem <= 0) return alert('최대 3장');
+                
+                Array.from(inp.files).slice(0, rem).forEach(f => {
+                    // 최대 1200px, 품질 0.7로 압축
+                    resizeImage(f, 1200, 1200, 0.7, (resizedData) => {
+                        uploadFiles.push({data: resizedData});
+                        renderImgPrev();
+                    });
+                });
+            } 
+            inp.value = '';
+        }
 
         function getDday(dateString) {
             const today = new Date(); today.setHours(0,0,0,0);
@@ -564,8 +624,16 @@
             openModal('registerModal');
         }
         
+        // [수정됨] 등록 이벤트 리스너 (로딩 팝업 추가)
         document.getElementById('itemForm').addEventListener('submit', async function(e){
-            e.preventDefault(); const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.innerText='처리 중...';
+            e.preventDefault(); 
+            const btn = document.getElementById('submitBtn'); 
+            btn.disabled = true; 
+            btn.innerText = '처리 중...';
+            
+            // [추가] 로딩 팝업 열기
+            openModal('loadingModal');
+
             const fd = new FormData(this);
             const priceVal = document.getElementById('priceRaw').value;
             const symbol = document.getElementById('currencySymbol').innerText;
@@ -583,10 +651,23 @@
             try {
                 const res = await fetch(APPS_SCRIPT_URL, {method:'POST', body:JSON.stringify(payload)});
                 const json = await res.json();
-                if(json.result==='success') { closeModal('registerModal'); showSuccessModal('완료', payload.action==='edit'?'수정되었습니다.':'등록되었습니다.'); }
+                
+                // 성공이든 실패든 응답을 받으면 로딩 닫기
+                closeModal('loadingModal');
+
+                if(json.result==='success') { 
+                    closeModal('registerModal'); 
+                    showSuccessModal('완료', payload.action==='edit'?'수정되었습니다.':'등록되었습니다.'); 
+                }
                 else alert(json.error);
-            } catch(e) { alert('오류: '+e.message); }
-            finally { btn.disabled=false; btn.innerText=payload.action==='edit'?'수정하기':'등록 완료'; }
+            } catch(e) { 
+                closeModal('loadingModal'); // 에러 발생 시에도 닫기
+                alert('오류: '+e.message); 
+            }
+            finally { 
+                btn.disabled=false; 
+                btn.innerText=payload.action==='edit'?'수정하기':'등록 완료'; 
+            }
         });
         
         function showSuccessModal(t,m){ document.getElementById('successTitle').innerText=t; document.getElementById('successMsg').innerText=m; openModal('successModal'); }
@@ -603,13 +684,6 @@
         }
         
         function initFormSelect(){ document.getElementById('countrySelect').innerHTML=countries.map(c=>`<option value="${c}">${c}</option>`).join('')+'<option value="direct">✏️ 직접 입력</option>'; handleCountryChange(document.getElementById('countrySelect')); }
-        
-        function handleFileSelect(inp){ 
-            if(inp.files){ 
-                const rem=3-uploadFiles.length; if(rem<=0) return alert('최대 3장');
-                Array.from(inp.files).slice(0,rem).forEach(f=>{ const r=new FileReader(); r.onload=e=>{uploadFiles.push({data:e.target.result}); renderImgPrev();}; r.readAsDataURL(f); });
-            } inp.value='';
-        }
         
         function renderImgPrev(){ document.getElementById('imagePreviewContainer').innerHTML=uploadFiles.map((f,i)=>`<div class="relative w-20 h-20 flex-shrink-0"><img src="${f.data}" class="w-full h-full object-cover rounded-xl border border-slate-200"><button onclick="rmImg(${i})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-sm"><i class="fas fa-times"></i></button></div>`).join(''); document.getElementById('imgCount').innerText=`${uploadFiles.length}/3`; }
         
@@ -639,5 +713,4 @@
         }
     </script>
 </body>
-
 </html>
